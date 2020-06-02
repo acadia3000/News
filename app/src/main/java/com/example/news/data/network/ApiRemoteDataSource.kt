@@ -12,17 +12,14 @@ import retrofit2.http.Query
 interface ApiRemoteDataSource {
 
     @GET("top-headlines")
-    suspend fun headlines(
-        @Query("sources") sources: String = "techcrunch",
-        @Query("apiKey") apiKey: String = API_KEY
-    ): Response<NewsResponse>
+    suspend fun headlines(@Query("sources") sources: String): Response<NewsResponse>
 
     companion object {
-        private const val BASE_URL = "http://newsapi.org/v2/"
-        private const val API_KEY = "716cf57f17a442a1a2055ab61d18818c"
+        private const val BASE_URL = "https://newsapi.org/v2/"
 
-        operator fun invoke(apiKey: String): ApiRemoteDataSource {
+        operator fun invoke(authorizationInterceptor: AuthorizationInterceptor): ApiRemoteDataSource {
             val okHttpBuilder = OkHttpClient.Builder()
+                .addInterceptor(authorizationInterceptor)
 
             return Retrofit.Builder()
                 .client(okHttpBuilder.build())
